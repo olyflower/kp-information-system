@@ -468,6 +468,11 @@ public class Main extends JFrame {
                     return;
                 }
 
+                if (createdAt.isAfter(LocalDate.now())) {
+                    JOptionPane.showMessageDialog(this, "Дата створення заявки не може бути в майбутньому.", "Помилка", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 Request newRequest = new Request(clientId, dispatcherId, createdAt, description, priority, status);
                 boolean success = DatabaseConnection.addRequest(newRequest);
                 if (success) {
@@ -528,6 +533,22 @@ public class Main extends JFrame {
                 String phoneNumber = phoneNumberField.getText().trim();
                 String email = emailField.getText().trim();
 
+
+                if (name.isEmpty() || surname.isEmpty() || address.isEmpty() || phoneNumber.isEmpty() || email.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Всі поля повинні бути заповнені.", "Помилка", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (!email.matches("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$")) {
+                    JOptionPane.showMessageDialog(this, "Невірний формат електронної пошти.", "Помилка", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (!phoneNumber.matches("^380\\d{9}$")) {
+                    JOptionPane.showMessageDialog(this, "Невірний формат номера телефону. Має бути номер у форматі 380XXXXXXXXX.", "Помилка", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 ServiceZone selectedZone = (ServiceZone) zoneComboBox.getSelectedItem();
                 if (selectedZone == null) {
                     JOptionPane.showMessageDialog(this, "Необхідно вибрати зону обслуговування.", "Помилка", JOptionPane.ERROR_MESSAGE);
@@ -539,8 +560,8 @@ public class Main extends JFrame {
                         ? selectedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
                         : LocalDate.now();
 
-                if (name.isEmpty() || surname.isEmpty() || address.isEmpty() || phoneNumber.isEmpty() || email.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Всі поля повинні бути заповнені.", "Помилка", JOptionPane.ERROR_MESSAGE);
+                if (registrationDate.isAfter(LocalDate.now())) {
+                    JOptionPane.showMessageDialog(this, "Дата реєстрації не може бути в майбутньому.", "Помилка", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -593,17 +614,28 @@ public class Main extends JFrame {
             String phoneNumber = phoneNumberField.getText();
 
             if (name.isEmpty() || surname.isEmpty() || email.isEmpty() || phoneNumber.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Всі поля повинні бути заповнені.");
-            } else {
-                Dispatcher newDispatcher = new Dispatcher(name, surname, email, phoneNumber);
-                boolean success = DatabaseConnection.addDispatcher(newDispatcher);
+                JOptionPane.showMessageDialog(this, "Всі поля повинні бути заповнені.", "Помилка", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
-                if (success) {
-                    JOptionPane.showMessageDialog(this, "Диспетчера успішно додано.");
-                    showDispatchers();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Помилка при додаванні диспетчера.");
-                }
+            if (!email.matches("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$")) {
+                JOptionPane.showMessageDialog(this, "Невірний формат електронної пошти.", "Помилка", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (!phoneNumber.matches("^380\\d{9}$")) {
+                JOptionPane.showMessageDialog(this, "Невірний формат номера телефону. Має бути 10 цифр, починаючи з 380.", "Помилка", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Dispatcher newDispatcher = new Dispatcher(name, surname, email, phoneNumber);
+            boolean success = DatabaseConnection.addDispatcher(newDispatcher);
+
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Диспетчера успішно додано.");
+                showDispatchers();
+            } else {
+                JOptionPane.showMessageDialog(this, "Помилка при додаванні диспетчера.", "Помилка", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
